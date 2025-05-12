@@ -1,1 +1,22 @@
+# Node
+node_modules/
 .env
+
+.env.railway-dev
+npm-debug.log*
+
+package-lock.json
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# SO
+.DS_Store
+Thumbs.db
+
+
