@@ -17,6 +17,7 @@ const DocumentoVersion = require('./documentoVersion.model')(sequelize, DataType
 const PasswordResetToken = require('./passwordResetToken.model')(sequelize, DataTypes);
 const AudienciaParte = require('./audienciaParte.model')(sequelize, DataTypes);
 const Notificacion = require('./notificacion.model')(sequelize, DataTypes);
+const Abogado            = require('./abogado.model')(sequelize, DataTypes);
 
 // =======================
 // Inicialización del objeto de modelos
@@ -27,6 +28,7 @@ const models = {
   Usuario,
   Rol,
   UsuarioRol,
+  Abogado, 
   Expediente,
   ExpedienteAbogado,
   Audiencia,
@@ -41,6 +43,9 @@ const models = {
 // =======================
 // Inicialización de asociaciones definidas en los modelos
 // =======================
+
+
+
 
 Object.values(models).forEach((model) => {
   if (typeof model.associate === 'function') {
@@ -90,5 +95,7 @@ PasswordResetToken.belongsTo(Usuario, {
   foreignKey: 'id_usuario',
   onDelete: 'CASCADE',
 });
+
+
 
 module.exports = models;

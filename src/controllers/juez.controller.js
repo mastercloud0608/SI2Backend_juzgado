@@ -1,4 +1,3 @@
-// src/controllers/juez.controller.js
 const service = require('../services/juez.service');
 
 async function getJueces(req, res) {
@@ -28,17 +27,21 @@ async function crearJuez(req, res) {
       nombre: req.body.nombre,
       apellido: req.body.apellido,
       correo: req.body.email,
-      password_hash: req.body.password, // si lo hasheas antes o aquí
+      password_hash: req.body.password, // Si lo hasheas antes o aquí
       telefono: req.body.telefono,
       calle: req.body.calle,
       ciudad: req.body.ciudad,
       codigo_postal: req.body.codigo_postal,
       carnet_identidad: req.body.carnet_identidad
     };
+    
     const juez = await service.createJuez(data);
     res.status(201).json({ mensaje: 'Juez creado correctamente', juez });
   } catch (err) {
     console.error(err);
+    if (err.message === 'El correo electrónico ya está registrado') {
+      return res.status(400).json({ mensaje: err.message }); // Error 400 si el correo ya existe
+    }
     res.status(500).json({ mensaje: 'Error en el servidor' });
   }
 }

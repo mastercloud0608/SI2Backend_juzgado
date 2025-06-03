@@ -5,7 +5,6 @@ const router = express.Router();
 const authenticateJWT = require('../middlewares/authenticateJWT');
 const authorizeRoles = require('../middlewares/authorizeRoles');
 
-// Rutas individuales importadas
 const authRoutes         = require('./auth.routes');
 const adminRoutes        = require('./administrador.routes');
 const clientRoutes       = require('./cliente.routes');
@@ -20,10 +19,10 @@ const notificacionRoutes = require('./notificacion.routes');
 // 1) Rutas públicas
 router.use('/auth', authRoutes);
 
-// 2) Middleware global: todas las rutas siguientes requieren autenticación JWT
+// 2) A partir de aquí, todas las rutas requieren JWT
 router.use(authenticateJWT);
 
-// 3) Rutas exclusivas de ADMIN
+// 3) Rutas exclusivas ADMIN
 router.use('/administradores', authorizeRoles('admin'), adminRoutes);
 router.use('/users',           authorizeRoles('admin'), userRoutes);
 
@@ -33,20 +32,20 @@ router.use('/abogados',        authorizeRoles('admin'), lawyerRoutes);
 // 5) Gestión de JUECES (solo ADMIN)
 router.use('/jueces',          authorizeRoles('admin'), judgeRoutes);
 
-// 6) Gestión de CLIENTES (ADMIN y ABOGADO)
-router.use('/clientes', authorizeRoles('admin', 'abogado'), clientRoutes);
+// 6) Gestión de CLIENTES (solo ADMIN para crear/editar/eliminar)
+router.use('/clientes',        authorizeRoles('admin', 'abogado'), clientRoutes);
 
 // 7) Gestión de EXPEDIENTES (ADMIN, ABOGADO, JUEZ)
-router.use('/expedientes', authorizeRoles('admin', 'abogado', 'juez'), caseRoutes);
+router.use('/expedientes',     authorizeRoles('admin', 'abogado', 'juez'), caseRoutes);
 
 // 8) Gestión de AUDIENCIAS (ADMIN, ABOGADO, JUEZ)
-router.use('/audiencias', authorizeRoles('admin', 'abogado', 'juez'), audienciaRoutes);
+router.use('/audiencias',      authorizeRoles('admin', 'abogado', 'juez'), audienciaRoutes);
 
 // 9) Gestión de DOCUMENTOS (ADMIN, ABOGADO, JUEZ)
-router.use('/documentos', authorizeRoles('admin', 'abogado', 'juez'), documentRoutes);
+router.use('/documentos',      authorizeRoles('admin', 'abogado', 'juez'), documentRoutes);
 
 // 10) Notificaciones (cualquier usuario autenticado)
-router.use('/notificaciones', notificacionRoutes);
+router.use('/notificaciones',  notificacionRoutes);
 
 // 11) Catch-all 404
 router.use((req, res) => {

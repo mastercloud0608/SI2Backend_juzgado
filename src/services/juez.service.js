@@ -1,6 +1,6 @@
 // src/services/juez.service.js
-const Rol     = require('../models/rol.model');
-const Expediente = require('../models/expediente.model'); // si necesitas incluir expedientes
+const { Usuario, Rol } = require('../models'); // Asegúrate de importar Usuario y Rol
+const Expediente = require('../models/expediente.model'); // Si necesitas incluir expedientes
 const { Op } = require('sequelize');
 
 /**
@@ -36,8 +36,26 @@ async function getJuezById(id) {
  * data debe incluir: nombre, apellido, correo, password_hash, ...
  */
 async function createJuez(data) {
+  // Verificar si el correo ya existe en la base de datos
+  const existingUser = await Usuario.findOne({ where: { correo: data.correo } });
+
+  if (existingUser) {
+    throw new Error('El correo electrónico ya está registrado');
+  }
+
+  // Crear el nuevo usuario (juez)
   const usuario = await Usuario.create(data);
-  await usuario.addRol('juez');
+
+  // Buscar el rol 'juez' en la base de datos
+  const juezRol = await Rol.findOne({ where: { id_rol: 'juez' } });
+
+  if (!juezRol) {
+    throw new Error('Rol de juez no encontrado');
+  }
+
+  // Asociar el rol 'juez' al usuario recién creado
+  await usuario.addRoles(juezRol); // Método adecuado para la relación muchos a muchos
+
   return usuario;
 }
 
@@ -49,12 +67,18 @@ async function updateJuez(id, data) {
     where: { id_usuario: id },
     returning: true
   });
+
   if (!updatedCount) return null;
+
   // Asegurar que conserva el rol
-  const roles = await usuario.getRols({ where: { id_rol: 'juez' } });
+  const roles = await usuario.getRoles({ where: { id_rol: 'juez' } });
   if (roles.length === 0) {
-    await usuario.addRol('juez');
+    const juezRol = await Rol.findOne({ where: { id_rol: 'juez' } });
+    if (juezRol) {
+      await usuario.addRoles(juezRol);
+    }
   }
+  
   return usuario;
 }
 
@@ -81,7 +105,7 @@ async function getPerfilJuez(carnet) {
     },
     {
       model: Expediente,
-      as: 'expedientes'   // si quieres incluir sus expedientes
+      as: 'expedientes'   // Si quieres incluir sus expedientes
     }]
   });
 }
