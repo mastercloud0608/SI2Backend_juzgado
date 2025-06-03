@@ -1,15 +1,25 @@
 // src/models/expedienteAbogado.model.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../db');
+module.exports = (sequelize, DataTypes) => {
+  const ExpedienteAbogado = sequelize.define(
+    'ExpedienteAbogado',
+    {}, // sin atributos, porque es tabla intermedia pura
+    {
+      tableName: 'expediente_abogado',
+      timestamps: false,
+      underscored: true,
+    }
+  );
 
-const ExpedienteAbogado = sequelize.define(
-  'ExpedienteAbogado', 
-  {}, 
-  {
-    tableName: 'expediente_abogado',
-    timestamps: false,
-    underscored: true
-  }
-);
+  // Asociaciones si querés (opcional)
+  ExpedienteAbogado.associate = (models) => {
+    // ejemplo si lo necesitás
+    // models.Usuario.belongsToMany(models.Expediente, {
+    //   through: ExpedienteAbogado,
+    //   foreignKey: 'id_usuario',
+    //   otherKey: 'id_expediente',
+    //   as: 'expedientes',
+    // });
+  };
 
-module.exports = ExpedienteAbogado;
+  return ExpedienteAbogado;
+};

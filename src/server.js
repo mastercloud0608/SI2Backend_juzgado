@@ -8,6 +8,9 @@ dotenv.config({ path: path.resolve(__dirname, '..', envFile) });
 const app = require('./utils/app');
 const sequelize = require('./db');
 
+// ✅ IMPORTANTE: Cargar todos los modelos y relaciones
+require('./models');
+
 const PORT = Number(process.env.PORT) || 3000;
 
 (async () => {

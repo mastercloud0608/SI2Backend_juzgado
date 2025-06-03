@@ -1,24 +1,22 @@
 // src/routes/cliente.routes.js
 const express = require('express');
-const router  = express.Router();
+const router = express.Router();
 const controller = require('../controllers/cliente.controller');
 
-// Listar todos los clientes
-router.get('/', controller.getClientes);
+const authenticateJWT = require('../middlewares/authenticateJWT');
+const authorizeRoles = require('../middlewares/authorizeRoles');
 
-// Obtener cliente por ID
-router.get('/:id', controller.getClienteById);
+// Todas las rutas requieren autenticación
+router.use(authenticateJWT);
 
-// Crear nuevo cliente
-router.post('/', controller.crearCliente);
+// ADMIN puede gestionar clientes
+router.get('/', authorizeRoles('admin'), controller.getClientes);
+router.get('/:id', authorizeRoles('admin'), controller.getClienteById);
+router.post('/', authorizeRoles('admin'), controller.crearCliente);
+router.put('/:id', authorizeRoles('admin'), controller.updateCliente);
+router.delete('/:id', authorizeRoles('admin'), controller.deleteCliente);
 
-// Actualizar cliente existente
-router.put('/:id', controller.updateCliente);
-
-// Eliminar cliente
-router.delete('/:id', controller.deleteCliente);
-
-// Perfil de cliente con expedientes
-router.get('/:id/perfil', controller.getPerfilCliente);
+// ADMIN y CLIENTE pueden ver el perfil (el cliente solo si es él mismo — debe controlarse en el controlador)
+router.get('/:id/perfil', authorizeRoles('admin', 'cliente'), controller.getPerfilCliente);
 
 module.exports = router;

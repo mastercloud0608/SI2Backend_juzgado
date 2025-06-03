@@ -1,24 +1,21 @@
 // src/routes/abogado.routes.js
 const express = require('express');
-const router  = express.Router();
+const router = express.Router();
 const controller = require('../controllers/abogado.controller');
+const authenticateJWT = require('../middlewares/authenticateJWT');
+const authorizeRoles = require('../middlewares/authorizeRoles');
 
-// Listar todos
-router.get('/', controller.getAbogados);
+// Todas las rutas requieren autenticación
+router.use(authenticateJWT);
 
-// Obtener por ID
-router.get('/:id', controller.getAbogadoById);
+// Solo ADMIN puede gestionar abogados
+router.get('/', authorizeRoles('admin'), controller.getAbogados);
+router.get('/:id', authorizeRoles('admin'), controller.getAbogadoById);
+router.post('/', authorizeRoles('admin'), controller.crearAbogado);
+router.put('/:id', authorizeRoles('admin'), controller.updateAbogado);
+router.delete('/:id', authorizeRoles('admin'), controller.deleteAbogado);
 
-// Crear nuevo
-router.post('/', controller.crearAbogado);
-
-// Actualizar existente
-router.put('/:id', controller.updateAbogado);
-
-// Eliminar
-router.delete('/:id', controller.deleteAbogado);
-
-// Perfil con expedientes
-router.get('/:id/perfil', controller.getPerfilAbogado);
+// ADMIN y ABOGADO pueden ver el perfil del abogado
+router.get('/:id/perfil', authorizeRoles('admin', 'abogado'), controller.getPerfilAbogado);
 
 module.exports = router;

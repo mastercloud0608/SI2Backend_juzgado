@@ -1,45 +1,35 @@
 // src/routes/audiencia.routes.js
 const express = require('express');
 const router = express.Router();
-
 const ctrl = require('../controllers/audiencia.controller');
+
 const authenticateJWT = require('../middlewares/authenticateJWT');
 const authorizeRoles = require('../middlewares/authorizeRoles');
 
-// Todas las operaciones de audiencias requieren que el usuario esté autenticado
-// y tenga rol 'administrador', 'abogado' o 'juez'
-router.use(
-  authenticateJWT,
-  authorizeRoles('administrador', 'abogado', 'juez')
-);
+// Todas las rutas requieren autenticación
+router.use(authenticateJWT);
 
-router
-  .route('/')
-  .get(ctrl.listarAudiencias)
-  .post(ctrl.crearAudiencia);
+// Listar y crear audiencias (admin, abogado, juez)
+router.get('/', authorizeRoles('admin', 'abogado', 'juez'), ctrl.listarAudiencias);
+router.post('/', authorizeRoles('admin', 'abogado', 'juez'), ctrl.crearAudiencia);
 
-router
-  .route('/:id')
-  .get(ctrl.obtenerAudiencia)
-  .put(ctrl.actualizarAudiencia)
-  .delete(ctrl.eliminarAudiencia);
+// Obtener, actualizar, eliminar (admin, juez)
+router.get('/:id', authorizeRoles('admin', 'juez'), ctrl.obtenerAudiencia);
+router.put('/:id', authorizeRoles('admin', 'juez'), ctrl.actualizarAudiencia);
+router.delete('/:id', authorizeRoles('admin'), ctrl.eliminarAudiencia);
 
-// PATCH /audiencias/:id/resolver
-// Solo roles 'juez' o 'administrador' pueden resolver
-router.patch(
-  '/:id/resolver',
-  authenticateJWT,
-  authorizeRoles('juez', 'administrador'),
-  ctrl.resolverAudiencia
-);
+// Resolver audiencia (admin, juez)
+router.patch('/:id/resolver', authorizeRoles('admin', 'juez'), ctrl.resolverAudiencia);
 
-router.post  ('/:id/partes',            ctrl.postParte);
-router.get   ('/:id/partes',            ctrl.getPartes);
-router.delete('/:id/partes/:parteId',   ctrl.deleteParte);
-router.post('/  usuarios/vincular', ctrl.postUsuario);
-router.patch('/:id/observacion', ctrl.actualizarObservacion);
+// Manejo de partes (admin, abogado, juez)
+router.post('/:id/partes', authorizeRoles('admin', 'abogado', 'juez'), ctrl.postParte);
+router.get('/:id/partes', authorizeRoles('admin', 'abogado', 'juez'), ctrl.getPartes);
+router.delete('/:id/partes/:parteId', authorizeRoles('admin', 'abogado', 'juez'), ctrl.deleteParte);
 
+// Vincular usuario (solo admin)
+router.post('/usuarios/vincular', authorizeRoles('admin'), ctrl.postUsuario);
 
-
+// Actualizar observación (admin, juez)
+router.patch('/:id/observacion', authorizeRoles('admin', 'juez'), ctrl.actualizarObservacion);
 
 module.exports = router;

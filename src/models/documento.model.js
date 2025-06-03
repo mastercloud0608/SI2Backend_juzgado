@@ -1,10 +1,6 @@
-
 // src/models/documento.model.js
-const { DataTypes } = require('sequelize');
-const sequelize      = require('../db');
-const Documento = sequelize.define(
-  'Documento',
-  {
+module.exports = (sequelize, DataTypes) => {
+  const Documento = sequelize.define('Documento', {
     id_documento: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -23,7 +19,7 @@ const Documento = sequelize.define(
       allowNull: false
     },
     tipo_documento: {
-      type: DataTypes.ENUM('Sentencia','Informe','Memorial','Resolución','Otro'),
+      type: DataTypes.ENUM('Sentencia', 'Informe', 'Memorial', 'Resolución', 'Otro'),
       allowNull: false
     },
     fecha_subida: {
@@ -50,13 +46,17 @@ const Documento = sequelize.define(
         key: 'id_usuario'
       }
     }
-  },
-  {
+  }, {
     tableName: 'documento',
     timestamps: false,
     underscored: true
-  }
-);
+  });
 
-module.exports = Documento;
+  // ✅ Tus asociaciones reales deben estar aquí activas
+  Documento.associate = (models) => {
+    Documento.belongsTo(models.Expediente, { foreignKey: 'id_expediente', as: 'expediente' });
+    Documento.belongsTo(models.Usuario, { foreignKey: 'id_usuario', as: 'usuario' });
+  };
 
+  return Documento;
+};

@@ -1,6 +1,6 @@
 // src/routes/auth.routes.js
 const express = require('express');
-const router  = express.Router();
+const router = express.Router();
 
 const {
   register,
@@ -10,10 +10,15 @@ const {
   resetPassword
 } = require('../controllers/auth.controller');
 
-router.post('/register',        register);
-router.post('/login',           login);
-router.post('/logout',          logout);
+const authenticateJWT = require('../middlewares/authenticateJWT');
+
+// Rutas públicas
+router.post('/register', register);
+router.post('/login', login);
 router.post('/forgot-password', forgotPassword);
-router.post('/reset-password',  resetPassword);
+router.post('/reset-password', resetPassword);
+
+// Logout requiere token
+router.post('/logout', authenticateJWT, logout);
 
 module.exports = router;

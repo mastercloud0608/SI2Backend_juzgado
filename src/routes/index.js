@@ -1,25 +1,26 @@
 // src/routes/index.js
-const express         = require('express');
-const router          = express.Router();
+const express = require('express');
+const router = express.Router();
 
 const authenticateJWT = require('../middlewares/authenticateJWT');
-const authorizeRoles  = require('../middlewares/authorizeRoles');
+const authorizeRoles = require('../middlewares/authorizeRoles');
 
-// Importa tus routers
-const authRoutes      = require('./auth.routes');
-const adminRoutes     = require('./administrador.routes');
-const clientRoutes    = require('./cliente.routes');
-const lawyerRoutes    = require('./abogado.routes');
-const judgeRoutes     = require('./juez.routes');
-const caseRoutes      = require('./expediente.routes');
-const userRoutes      = require('./user.routes');
-const documentRoutes  = require('./documento.routes');
-const audienciaRoutes = require('./audiencia.routes'); 
+// Rutas individuales importadas
+const authRoutes         = require('./auth.routes');
+const adminRoutes        = require('./administrador.routes');
+const clientRoutes       = require('./cliente.routes');
+const lawyerRoutes       = require('./abogado.routes');
+const judgeRoutes        = require('./juez.routes');
+const caseRoutes         = require('./expediente.routes');
+const userRoutes         = require('./user.routes');
+const documentRoutes     = require('./documento.routes');
+const audienciaRoutes    = require('./audiencia.routes');
+const notificacionRoutes = require('./notificacion.routes');
 
 // 1) Rutas públicas
 router.use('/auth', authRoutes);
 
-// 2) A partir de aquí, todas requieren JWT válido
+// 2) Middleware global: todas las rutas siguientes requieren autenticación JWT
 router.use(authenticateJWT);
 
 // 3) Rutas exclusivas de ADMIN
@@ -33,39 +34,23 @@ router.use('/abogados',        authorizeRoles('admin'), lawyerRoutes);
 router.use('/jueces',          authorizeRoles('admin'), judgeRoutes);
 
 // 6) Gestión de CLIENTES (ADMIN y ABOGADO)
-router.use(
-  '/clientes',
-  authorizeRoles('admin', 'abogado'),
-  clientRoutes
-);
+router.use('/clientes', authorizeRoles('admin', 'abogado'), clientRoutes);
 
 // 7) Gestión de EXPEDIENTES (ADMIN, ABOGADO, JUEZ)
-router.use(
-  '/expedientes',
-  authorizeRoles('admin', 'abogado', 'juez'),
-  caseRoutes
-);
+router.use('/expedientes', authorizeRoles('admin', 'abogado', 'juez'), caseRoutes);
 
-// 8) CRUD de AUDIENCIAS (ADMIN, ABOGADO, JUEZ)
-router.use(
-  '/audiencias',
-  authorizeRoles('admin', 'abogado', 'juez'),
-  audienciaRoutes
-);
+// 8) Gestión de AUDIENCIAS (ADMIN, ABOGADO, JUEZ)
+router.use('/audiencias', authorizeRoles('admin', 'abogado', 'juez'), audienciaRoutes);
 
-// 9) CRUD de DOCUMENTOS (ADMIN, ABOGADO, JUEZ)
-router.use(
-  '/documentos',
-  authorizeRoles('admin', 'abogado', 'juez'),
-  documentRoutes
-);
+// 9) Gestión de DOCUMENTOS (ADMIN, ABOGADO, JUEZ)
+router.use('/documentos', authorizeRoles('admin', 'abogado', 'juez'), documentRoutes);
 
-const notificacionRoutes = require('./notificacion.routes');
+// 10) Notificaciones (cualquier usuario autenticado)
 router.use('/notificaciones', notificacionRoutes);
 
-// 10) Ruta catch-all para 404
-router.use((req, res) =>
-  res.status(404).json({ mensaje: 'Ruta no encontrada' })
-);
+// 11) Catch-all 404
+router.use((req, res) => {
+  res.status(404).json({ mensaje: 'Ruta no encontrada' });
+});
 
 module.exports = router;

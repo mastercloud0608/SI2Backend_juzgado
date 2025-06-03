@@ -1,10 +1,6 @@
 // src/models/usuario.model.js
-const { DataTypes } = require('sequelize');
-const sequelize         = require('../db');
-
-const Usuario = sequelize.define(
-  'Usuario',
-  {
+module.exports = (sequelize, DataTypes) => {
+  const Usuario = sequelize.define('Usuario', {
     id_usuario: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -28,8 +24,8 @@ const Usuario = sequelize.define(
       allowNull: false,
     },
     telefono: DataTypes.STRING(20),
-    calle:    DataTypes.STRING(150),
-    ciudad:   DataTypes.STRING(100),
+    calle: DataTypes.STRING(150),
+    ciudad: DataTypes.STRING(100),
     codigo_postal: DataTypes.STRING(20),
     estado_usuario: {
       type: DataTypes.ENUM('Activo', 'Inactivo'),
@@ -41,11 +37,39 @@ const Usuario = sequelize.define(
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-  },
-  {
+  }, {
     tableName: 'usuario',
     timestamps: false,
-  }
-);
+  });
 
-module.exports = Usuario;
+  // ✅ Define las asociaciones aquí
+  Usuario.associate = (models) => {
+    Usuario.belongsToMany(models.Rol, {
+      through: models.UsuarioRol,
+      foreignKey: 'id_usuario',
+      otherKey: 'id_rol',
+      as: 'roles',
+    });
+
+    Usuario.belongsToMany(models.Expediente, {
+      through: models.ExpedienteAbogado,
+      foreignKey: 'id_usuario',
+      otherKey: 'id_expediente',
+      as: 'expedientes',
+    });
+
+    Usuario.belongsToMany(models.Audiencia, {
+      through: models.AudienciaParte,
+      foreignKey: 'id_usuario',
+      otherKey: 'id_audiencia',
+      as: 'audiencias',
+    });
+
+    Usuario.hasMany(models.Notificacion, {
+      foreignKey: 'id_usuario',
+      as: 'notificaciones',
+    });
+  };
+
+  return Usuario;
+};
