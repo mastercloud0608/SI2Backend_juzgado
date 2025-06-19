@@ -24,13 +24,24 @@ async function listClientes() {
 
   // 2) Recuperar todos los Usuarios que tengan asociado el rol “cliente”
   const clientes = await Usuario.findAll({
-    attributes: ['id_usuario', 'nombre', 'apellido', 'correo', 'telefono'],
+    attributes: [
+      'id_usuario',
+      'nombre',
+      'apellido',
+      'correo',
+      'telefono',
+      'calle',
+      'ciudad',
+      'codigo_postal',
+      'estado_usuario',
+      'fecha_registro'
+    ],
     include: [
       {
         model: Rol,
         as: 'roles',
         where: { id_rol: 'cliente' },
-        attributes: [], // no necesitamos campos del rol en la respuesta
+        attributes: [],
         through: { attributes: [] },
       },
     ],
@@ -147,6 +158,8 @@ async function updateCliente(id, data) {
     calle: data.calle       || usuario.calle,
     ciudad: data.ciudad     || usuario.ciudad,
     codigo_postal: data.codigo_postal || usuario.codigo_postal,
+    estado_usuario: data.estado_usuario || usuario.estado_usuario
+
     // Agrega aquí otros campos que necesites actualizar
   });
 

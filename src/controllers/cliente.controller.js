@@ -32,7 +32,8 @@ async function crearCliente(req, res) {
       telefono: req.body.telefono,
       calle: req.body.calle,
       ciudad: req.body.ciudad,
-      codigo_postal: req.body.codigo_postal
+      codigo_postal: req.body.codigo_postal,
+      estado_usuario: req.body.estado_usuario // <-----
     };
     const cliente = await service.createCliente(data);
     res.status(201).json({ mensaje: 'Cliente creado correctamente', cliente });
@@ -52,7 +53,8 @@ async function updateCliente(req, res) {
       telefono: req.body.telefono,
       calle: req.body.calle,
       ciudad: req.body.ciudad,
-      codigo_postal: req.body.codigo_postal
+      codigo_postal: req.body.codigo_postal,
+      estado_usuario: req.body.estado_usuario // <-----
     };
     const cliente = await service.updateCliente(req.params.id, data);
     if (!cliente) return res.status(404).json({ mensaje: 'Cliente no encontrado' });
