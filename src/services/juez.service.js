@@ -11,6 +11,7 @@ async function listJueces() {
     attributes: ['id_usuario', 'nombre', 'apellido', 'correo', 'telefono'],
     include: [{
       model: Rol,
+      as: 'roles',
       where: { id_rol: 'juez' },
       attributes: []
     }]
